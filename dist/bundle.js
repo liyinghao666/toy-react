@@ -158,7 +158,7 @@ var My = /*#__PURE__*/function (_Component) {
 
     _this = _super.call(this);
     _this.state = {
-      name: "liyinghao"
+      name: 1
     };
     return _this;
   }
@@ -166,7 +166,15 @@ var My = /*#__PURE__*/function (_Component) {
   _createClass(My, [{
     key: "render",
     value: function render() {
-      return Object(_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", null, Object(_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", null, this.state.name), this.children);
+      var _this2 = this;
+
+      return Object(_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", null, Object(_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
+        onClick: function onClick() {
+          _this2.setState({
+            name: _this2.state.name + 1
+          });
+        }
+      }, this.state.name.toString()), this.children);
     }
   }]);
 
@@ -204,8 +212,8 @@ var Component = /*#__PURE__*/function () {
     _classCallCheck(this, Component);
 
     this.props = Object.create(null);
-    this._root = null;
     this.children = [];
+    this._range = null;
   }
 
   _createClass(Component, [{
@@ -219,35 +227,61 @@ var Component = /*#__PURE__*/function () {
       this.children.push(component);
     }
   }, {
-    key: "root",
-    get: function get() {
-      if (!this._root) {
-        this._root = this.render().root;
+    key: "_renderToDom",
+    value: function _renderToDom(range) {
+      this._range = range;
+
+      this.render()._renderToDom(range);
+    }
+  }, {
+    key: "rerender",
+    value: function rerender() {
+      this._range.deleteContents();
+
+      this._renderToDom(this._range);
+    }
+  }, {
+    key: "setState",
+    value: function setState(newState) {
+      if (this.state === null || _typeof(this.state) !== 'object') {
+        this.state = newState;
+        this.rerender();
+        return;
       }
 
-      return this._root;
-    }
+      var merge = function merge(oldState, newState) {
+        for (var p in newState) {
+          if (_typeof(oldState[p]) !== 'object' || oldState[p] === null) {
+            oldState[p] = newState[p];
+          } else if (_typeof(newState[p]) !== 'object' || newState[p] === null) {
+            oldState[p] = newState[p];
+          } else {
+            merge(oldState[p], newState[p]);
+          }
+        }
+      };
+
+      merge(this.state, newState);
+      this.rerender();
+    } // get root() {
+    //   if(!this._root) {
+    //     this._root = this.render().root
+    //   }
+    //   return this._root
+    // }
+
   }]);
 
   return Component;
 }();
-
-Component.prototype.setState = function (set) {
-  if (!(_typeof(set) === "object" && set instanceof Function)) throw new Error('setState receives only functions');
-  var newState = set(this.state, callback);
-
-  var callback = function () {
-    Object.assign(this.state, newState);
-  }.bind(this);
-};
 /**
  * reactNodeElement
  * 用来代理常规节点
  * 抹平自定义节点与原生节点的差异
  * 提供普适的setAttribute方法与appendChild方法
  * 实现思路：把原生Dom结构存在this.root中
+ * _renderToDom利用range对象实现dom节点的替换，此方法每个类型的element都应该具备
  */
-
 
 var reactNodeElement = /*#__PURE__*/function () {
   function reactNodeElement(tag) {
@@ -259,12 +293,25 @@ var reactNodeElement = /*#__PURE__*/function () {
   _createClass(reactNodeElement, [{
     key: "setAttribute",
     value: function setAttribute(name, value) {
+      if (name.match(/^on([\s\S]+)$/)) this.root.addEventListener(RegExp.$1.replace(/^[\s\S]/, function (c) {
+        return c.toLowerCase();
+      }), value);
       this.root.setAttribute(name, value);
     }
   }, {
     key: "appendChild",
     value: function appendChild(ele) {
-      this.root.appendChild(ele.root);
+      var range = document.createRange();
+      range.setStart(this.root, this.root.childNodes.length);
+      range.setEnd(this.root, this.root.childNodes.length);
+
+      ele._renderToDom(range);
+    }
+  }, {
+    key: "_renderToDom",
+    value: function _renderToDom(range) {
+      range.deleteContents();
+      range.insertNode(this.root);
     }
   }]);
 
@@ -276,11 +323,23 @@ var reactNodeElement = /*#__PURE__*/function () {
  * 不需要上述方法
  */
 
-var reactTextElement = function reactTextElement(content) {
-  _classCallCheck(this, reactTextElement);
+var reactTextElement = /*#__PURE__*/function () {
+  function reactTextElement(content) {
+    _classCallCheck(this, reactTextElement);
 
-  this.root = document.createTextNode(content);
-};
+    this.root = document.createTextNode(content);
+  }
+
+  _createClass(reactTextElement, [{
+    key: "_renderToDom",
+    value: function _renderToDom(range) {
+      range.deleteContents();
+      range.insertNode(this.root);
+    }
+  }]);
+
+  return reactTextElement;
+}();
 function createElement(tag, attr) {
   var ele;
 
@@ -315,7 +374,12 @@ function createElement(tag, attr) {
   return ele;
 }
 function render(component, root) {
-  root.appendChild(component.root);
+  var range = document.createRange();
+  range.setStart(root, 0);
+  range.setEnd(root, root.childNodes.length);
+  range.deleteContents();
+
+  component._renderToDom(range);
 }
 
 /***/ })
