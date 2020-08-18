@@ -16,8 +16,15 @@ export class Component {
     this.render()._renderToDom(range)
   }
   rerender() {
-    this._range.deleteContents()
-    this._renderToDom(this._range)
+    let oldRange = this._range
+
+    let range = document.createRange()
+    range.setStart(oldRange.startContainer, oldRange.startOffset)
+    range.setEnd(oldRange.startContainer, oldRange.startOffset)
+    this._renderToDom(range)
+
+    oldRange.setStart(range.endContainer, range.endOffset)
+    oldRange.deleteContents()
   }
   setState(newState) {
     if(this.state === null || typeof this.state !== 'object') {
@@ -60,7 +67,11 @@ export class reactNodeElement {
   }
   setAttribute(name, value) {
     if(name.match(/^on([\s\S]+)$/))this.root.addEventListener(RegExp.$1.replace(/^[\s\S]/, (c) => c.toLowerCase()), value)
-    this.root.setAttribute(name, value)
+    if(name === 'className') {
+      this.root.setAttribute('class', value)
+    } else {
+      this.root.setAttribute(name, value)
+    }
   }
   appendChild(ele) {
     let range = document.createRange()
@@ -99,6 +110,7 @@ export function createElement(tag, attr, ...children) {
   }
   const insertChildren = (children) => {
     children.forEach(child => {
+      if (child === null)return
       if (typeof child === "object" && (child instanceof Array)) {
         insertChildren(child)
         return

@@ -95,33 +95,19 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _src_createElement_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/createElement.js */ "./src/createElement.js");
-/* harmony import */ var _src_My_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/My.js */ "./src/My.js");
+/* harmony import */ var _src_createElement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/createElement */ "./src/createElement.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-Object(_src_createElement_js__WEBPACK_IMPORTED_MODULE_0__["render"])(Object(_src_createElement_js__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", null, Object(_src_createElement_js__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_src_My_js__WEBPACK_IMPORTED_MODULE_1__["default"], {
-  name: "liyinghao"
-}, Object(_src_createElement_js__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
-  id: "a"
-}, Object(_src_createElement_js__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
-  id: "aa"
-}, "hahaha")), Object(_src_createElement_js__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
-  id: "b"
-}, "wawawa"))), document.body);
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-/***/ }),
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-/***/ "./src/My.js":
-/*!*******************!*\
-  !*** ./src/My.js ***!
-  \*******************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return My; });
-/* harmony import */ var _createElement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./createElement */ "./src/createElement.js");
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -146,42 +132,181 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 
 
-var My = /*#__PURE__*/function (_Component) {
-  _inherits(My, _Component);
+var Square = /*#__PURE__*/function (_Component) {
+  _inherits(Square, _Component);
 
-  var _super = _createSuper(My);
+  var _super = _createSuper(Square);
 
-  function My() {
-    var _this;
+  function Square() {
+    _classCallCheck(this, Square);
 
-    _classCallCheck(this, My);
-
-    _this = _super.call(this);
-    _this.state = {
-      name: 1
-    };
-    return _this;
+    return _super.apply(this, arguments);
   }
 
-  _createClass(My, [{
+  _createClass(Square, [{
     key: "render",
     value: function render() {
-      var _this2 = this;
-
-      return Object(_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", null, Object(_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
-        onClick: function onClick() {
-          _this2.setState({
-            name: _this2.state.name + 1
-          });
-        }
-      }, this.state.name.toString()), this.children);
+      return Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("button", {
+        className: "square",
+        onClick: this.props.onClick
+      }, this.props.value);
     }
   }]);
 
-  return My;
-}(_createElement__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+  return Square;
+}(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+
+var Board = /*#__PURE__*/function (_Component2) {
+  _inherits(Board, _Component2);
+
+  var _super2 = _createSuper(Board);
+
+  function Board() {
+    _classCallCheck(this, Board);
+
+    return _super2.apply(this, arguments);
+  }
+
+  _createClass(Board, [{
+    key: "renderSquare",
+    value: function renderSquare(i) {
+      var _this = this;
+
+      return Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])(Square, {
+        value: this.props.squares[i],
+        onClick: function onClick() {
+          return _this.props.onClick(i);
+        }
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", null, Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
+        className: "board-row"
+      }, this.renderSquare(0), this.renderSquare(1), this.renderSquare(2)), Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
+        className: "board-row"
+      }, this.renderSquare(3), this.renderSquare(4), this.renderSquare(5)), Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
+        className: "board-row"
+      }, this.renderSquare(6), this.renderSquare(7), this.renderSquare(8)));
+    }
+  }]);
+
+  return Board;
+}(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+
+var Game = /*#__PURE__*/function (_Component3) {
+  _inherits(Game, _Component3);
+
+  var _super3 = _createSuper(Game);
+
+  function Game(props) {
+    var _this2;
+
+    _classCallCheck(this, Game);
+
+    _this2 = _super3.call(this, props);
+    _this2.state = {
+      history: [{
+        squares: Array(9).fill(null)
+      }],
+      stepNumber: 0,
+      xIsNext: true
+    };
+    return _this2;
+  }
+
+  _createClass(Game, [{
+    key: "handleClick",
+    value: function handleClick(i) {
+      var history = this.state.history.slice(0, this.state.stepNumber + 1);
+      var current = history[history.length - 1];
+      var squares = current.squares.slice();
+
+      if (calculateWinner(squares) || squares[i]) {
+        return;
+      }
+
+      squares[i] = this.state.xIsNext ? "X" : "O";
+      this.setState({
+        history: history.concat([{
+          squares: squares
+        }]),
+        stepNumber: history.length,
+        xIsNext: !this.state.xIsNext
+      });
+    }
+  }, {
+    key: "jumpTo",
+    value: function jumpTo(step) {
+      this.setState({
+        stepNumber: step,
+        xIsNext: step % 2 === 0
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this3 = this;
+
+      var history = this.state.history;
+      var current = history[this.state.stepNumber];
+      var winner = calculateWinner(current.squares);
+      var moves = history.map(function (step, move) {
+        var desc = move ? 'Go to move #' + move : 'Go to game start';
+        return Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("li", {
+          key: move
+        }, Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("button", {
+          onClick: function onClick() {
+            return _this3.jumpTo(move);
+          }
+        }, desc));
+      });
+      var status;
+
+      if (winner) {
+        status = "Winner: " + winner;
+      } else {
+        status = "Next player: " + (this.state.xIsNext ? "X" : "O");
+      }
+
+      return Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
+        className: "game"
+      }, Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
+        className: "game-board"
+      }, Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])(Board, {
+        squares: current.squares,
+        onClick: function onClick(i) {
+          return _this3.handleClick(i);
+        }
+      })), Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", {
+        className: "game-info"
+      }, Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", null, status), Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])("ol", null, moves)));
+    }
+  }]);
+
+  return Game;
+}(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["Component"]); // ========================================
 
 
+Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["render"])(Object(_src_createElement__WEBPACK_IMPORTED_MODULE_0__["createElement"])(Game, null), document.getElementById("root"));
+
+function calculateWinner(squares) {
+  var lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+
+  for (var i = 0; i < lines.length; i++) {
+    var _lines$i = _slicedToArray(lines[i], 3),
+        a = _lines$i[0],
+        b = _lines$i[1],
+        c = _lines$i[2];
+
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+
+  return null;
+}
 
 /***/ }),
 
@@ -236,9 +361,15 @@ var Component = /*#__PURE__*/function () {
   }, {
     key: "rerender",
     value: function rerender() {
-      this._range.deleteContents();
+      var oldRange = this._range;
+      var range = document.createRange();
+      range.setStart(oldRange.startContainer, oldRange.startOffset);
+      range.setEnd(oldRange.startContainer, oldRange.startOffset);
 
-      this._renderToDom(this._range);
+      this._renderToDom(range);
+
+      oldRange.setStart(range.endContainer, range.endOffset);
+      oldRange.deleteContents();
     }
   }, {
     key: "setState",
@@ -296,7 +427,12 @@ var reactNodeElement = /*#__PURE__*/function () {
       if (name.match(/^on([\s\S]+)$/)) this.root.addEventListener(RegExp.$1.replace(/^[\s\S]/, function (c) {
         return c.toLowerCase();
       }), value);
-      this.root.setAttribute(name, value);
+
+      if (name === 'className') {
+        this.root.setAttribute('class', value);
+      } else {
+        this.root.setAttribute(name, value);
+      }
     }
   }, {
     key: "appendChild",
@@ -356,6 +492,8 @@ function createElement(tag, attr) {
 
   var insertChildren = function insertChildren(children) {
     children.forEach(function (child) {
+      if (child === null) return;
+
       if (_typeof(child) === "object" && child instanceof Array) {
         insertChildren(child);
         return;
