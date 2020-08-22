@@ -42,7 +42,7 @@ export class Component {
       let tailRange = oldChildren[oldChildren.length - 1]._range
 
       for(let i = 0; i < newChildren.length; i++) {
-        let newChild = newChildren[i]
+        let newChild = newChildren[i] 
         let oldChild = oldChildren[i]
         if(i < oldChildren.length) {
           update(oldChild, newChild)
