@@ -5,6 +5,9 @@ export class Component {
     this.children = []
     this._range = null
   }
+  get vdom() {
+    return this.render().vdom
+  }
   setAttribute(name, value) {
     this.props[name] = value
   }
@@ -13,18 +16,48 @@ export class Component {
   }
   _renderToDom(range) {
     this._range = range
-    this.render()._renderToDom(range)
+    this._vdom = this.vdom
+    this._vdom._renderToDom(range)
   }
-  rerender() {
-    let oldRange = this._range
+  update() {
+    let isSameNode = (oldNode, newNode) => {
+      if(oldNode.type !== newNode.type)return false
+      for(let prop in newNode.props) {
+        if(newNode.props[prop] !== oldNode.props[prop])return false
+      }
+      if(Object.keys(oldNode.props).length !== Object.keys(newNode.props).length)return false
+      if(oldNode.type === "#text" && newNode.content !== oldNode.content)return false
+      return true
+    }
+    let update = (oldNode, newNode) => {
+      if(!isSameNode(oldNode, newNode)) {
+        newNode._renderToDom(oldNode._range)
+        return
+      }
+      newNode._range = oldNode._range
 
-    let range = document.createRange()
-    range.setStart(oldRange.startContainer, oldRange.startOffset)
-    range.setEnd(oldRange.startContainer, oldRange.startOffset)
-    this._renderToDom(range)
+      let newChildren = newNode.vchildren
+      let oldChildren = oldNode.vchildren
 
-    oldRange.setStart(range.endContainer, range.endOffset)
-    oldRange.deleteContents()
+      let tailRange = oldChildren[oldChildren.length - 1]._range
+
+      for(let i = 0; i < newChildren.length; i++) {
+        let newChild = newChildren[i]
+        let oldChild = oldChildren[i]
+        if(i < oldChildren.length) {
+          update(oldChild, newChild)
+        } else {
+          let range = document.createRange()
+          range.setStart(tailRange.endContainer, tailRange.endOffset)
+          range.setEnd(tailRange.endContainer, tailRange.endOffset)
+          newChild._renderToDom(range)
+          tailRange = range
+        }
+      }
+    }
+    let vdom = this.vdom
+    update(this._vdom, vdom)
+    this._vdom = vdom
   }
   setState(newState) {
     if(this.state === null || typeof this.state !== 'object') {
@@ -44,58 +77,56 @@ export class Component {
       }
     }
     merge(this.state, newState)
-    this.rerender()
+    this.update()
   }
-  // get root() {
-  //   if(!this._root) {
-  //     this._root = this.render().root
-  //   }
-  //   return this._root
-  // }
 }
-/**
- * reactNodeElement
- * 用来代理常规节点
- * 抹平自定义节点与原生节点的差异
- * 提供普适的setAttribute方法与appendChild方法
- * 实现思路：把原生Dom结构存在this.root中
- * _renderToDom利用range对象实现dom节点的替换，此方法每个类型的element都应该具备
- */
-export class reactNodeElement {
+export class reactNodeElement extends Component{
   constructor(tag) {
-    this.root = document.createElement(tag)
+    super(tag)
+    this.type = tag
   }
-  setAttribute(name, value) {
-    if(name.match(/^on([\s\S]+)$/))this.root.addEventListener(RegExp.$1.replace(/^[\s\S]/, (c) => c.toLowerCase()), value)
-    if(name === 'className') {
-      this.root.setAttribute('class', value)
-    } else {
-      this.root.setAttribute(name, value)
-    }
-  }
-  appendChild(ele) {
-    let range = document.createRange()
-    range.setStart(this.root, this.root.childNodes.length)
-    range.setEnd(this.root, this.root.childNodes.length)
-    ele._renderToDom(range)
+  get vdom() {
+    this.vchildren = this.children.map(child => child.vdom)
+    return this
   }
   _renderToDom(range) {
-    range.deleteContents()
-    range.insertNode(this.root)
+    this._range = range
+    let root = document.createElement(this.type)
+    for(let name in this.props) {
+      let value = this.props[name]
+      if(name.match(/^on([\s\S]+)$/))root.addEventListener(RegExp.$1.replace(/^[\s\S]/, (c) => c.toLowerCase()), value)
+      if(name === 'className') {
+        root.setAttribute('class', value)
+      } else {
+        root.setAttribute(name, value)
+      }
+    }
+
+    if(!this.vchildren)
+      this.vchildren = this.children.map(child => child.vdom)
+
+    for(let child of this.vchildren) {
+      let childRange = document.createRange()
+      childRange.setStart(root, root.childNodes.length)
+      childRange.setEnd(root, root.childNodes.length)
+      child._renderToDom(childRange)
+    }
+    replaceContent(range, root)
   }
 }
-/**
- * reactTextElement
- * 用来代理文本节点
- * 不需要上述方法
- */
-export class reactTextElement {
+export class reactTextElement extends Component {
   constructor(content) {
-    this.root = document.createTextNode(content)
+    super(content)
+    this.type = "#text"
+    this.content = content
+  }
+  get vdom() {
+    return this
   }
   _renderToDom(range) {
-    range.deleteContents()
-    range.insertNode(this.root)
+    this._range = range
+    let root = document.createTextNode(this.content)
+    replaceContent(range, root)
   }
 }
 export function createElement(tag, attr, ...children) {
@@ -128,4 +159,12 @@ export function render(component, root) {
   range.setEnd(root, root.childNodes.length)
   range.deleteContents()
   component._renderToDom(range)
+}
+
+function replaceContent(range, node) {
+  range.insertNode(node);
+  range.setStartAfter(node)
+  range.deleteContents()
+  range.setStartBefore(node)
+  range.setEndAfter(node);  
 }
